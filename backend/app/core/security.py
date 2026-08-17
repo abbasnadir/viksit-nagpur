@@ -1,25 +1,42 @@
-from datetime import datetime, timedelta
-from typing import Any, Union
+import json
+import urllib.request
 from jose import jwt
-from passlib.context import CryptContext
-
 from app.core.config import settings
+from typing import Dict, Any
 
-PWD_CONTEXT = CryptContext(schemes=["bcrypt"], deprecated="auto")
-ALGORITHM = "HS256"
+_jwks = None
 
-def create_access_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str:
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+def get_jwks() -> Dict[str, Any]:
+    global _jwks
+    if _jwks is None and settings.JWKS_URL:
+        try:
+            with urllib.request.urlopen(settings.JWKS_URL) as response:
+                _jwks = json.loads(response.read().decode("utf-8"))
+        except Exception as e:
+            print(f"Error fetching JWKS from {settings.JWKS_URL}: {e}")
+            _jwks = {"keys": []}
+    return _jwks or {"keys": []}
+
+def verify_token(token: str) -> dict:
+    jwks = get_jwks()
+    try:
+        unverified_header = jwt.get_unverified_header(token)
+    except jwt.JWTError:
+        raise ValueError("Invalid token header")
+        
+    rsa_key = {}
+    for key in jwks.get("keys", []):
+        if key["kid"] == unverified_header.get("kid"):
+            rsa_key = {
+                "kty": key["kty"],
+                "kid": key["kid"],
+                "use": key.get("use", "sig"),
+                "n": key["n"],
+                "e": key["e"]
+            }
+            break
+            
+    if rsa_key:
+        return jwt.decode(token, rsa_key, algorithms=["RS256"])
     else:
-        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    
-    to_encode = {"exp": expire, "sub": str(subject)}
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return PWD_CONTEXT.verify(plain_password, hashed_password)
-
-def get_password_hash(password: str) -> str:
-    return PWD_CONTEXT.hash(password)
+        raise ValueError("Unable to find appropriate key")
