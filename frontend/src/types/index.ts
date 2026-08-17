@@ -58,6 +58,7 @@ export interface Incident {
   locationId: string;
   locationName: string;
   severity: IncidentSeverity;
+  shortDescription?: string;
   description: string;
   reportedAt: string;      // ISO string
   status: IncidentStatus;
