@@ -70,3 +70,4 @@ Thumbs.db
 *.db
 .agent
 pnpm-lock.yaml
+demo_frontend

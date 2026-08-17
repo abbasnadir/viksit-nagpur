@@ -12,6 +12,51 @@ paths:
       responses:
         '200':
           description: OK
+  /api/v1/traffic/flow:
+    get:
+      summary: Fetches real-time textual traffic flow data using TomTom API. (Opted-out of Authorization)
+      tags:
+        - Traffic
+      parameters:
+        - in: query
+          name: lat
+          schema:
+            type: number
+          required: true
+        - in: query
+          name: lng
+          schema:
+            type: number
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      current_speed:
+                        type: number
+                      free_flow_speed:
+                        type: number
+                      current_travel_time:
+                        type: integer
+                      free_flow_travel_time:
+                        type: integer
+                      confidence:
+                        type: number
+                      road_closure:
+                        type: boolean
+                      congestion_ratio:
+                        type: number
+                      congestion_level:
+                        type: string
   /api/v1/traffic/route:
     post:
       summary: Computes route and traffic-aware travel time using Google Routes API. (Opted-out of Authorization)

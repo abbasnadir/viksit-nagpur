@@ -20,16 +20,7 @@ class StandardizedRoute(APIRoute):
             
         super().__init__(*args, **kwargs)
 
-    def get_route_handler(self) -> Callable:
-        original_route_handler = super().get_route_handler()
 
-        async def custom_route_handler(request: Request) -> Any:
-            response = await original_route_handler(request)
-            if isinstance(response, BaseResponse) or isinstance(response, JSONResponse):
-                return response
-            return BaseResponse(success=True, data=response)
-
-        return custom_route_handler
 
 def get_base_router(*args, **kwargs) -> APIRouter:
     kwargs.setdefault("route_class", StandardizedRoute)

@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     AUTH_URL: str = ""
     DATABASE_URL: str = ""
     GOOGLE_MAPS_API_KEY: str = ""
+    TOMTOM_API_KEY: str = ""
 
     CORS_ORIGINS: List[str] = [
         "http://localhost:5173",

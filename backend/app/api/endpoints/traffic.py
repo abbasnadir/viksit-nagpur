@@ -2,12 +2,76 @@ import httpx
 from fastapi import APIRouter, HTTPException, status
 from app.api.router import get_base_router
 from app.schemas.requests import RouteComputeRequest
-from app.schemas.responses import RouteInfoResponse
+from app.schemas.responses import RouteInfoResponse, TomTomFlowResponse
+from app.schemas.base import BaseResponse
 from app.core.config import settings
 
 router = get_base_router(prefix="/traffic", tags=["Traffic"])
 
-@router.post("/route", response_model=RouteInfoResponse, openapi_extra={"is_public": True})
+@router.get("/flow", response_model=BaseResponse[TomTomFlowResponse], openapi_extra={"is_public": True})
+async def get_traffic_flow(lat: float, lng: float):
+    """Fetches real-time textual traffic flow data using TomTom API."""
+    if not settings.TOMTOM_API_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="TomTom API key is not configured."
+        )
+
+    url = f"https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/22/json?point={lat},{lng}&key={settings.TOMTOM_API_KEY}"
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(url)
+            response.raise_for_status()
+            data = response.json()
+            
+            flow_data = data.get("flowSegmentData", {})
+            if not flow_data:
+                raise HTTPException(status_code=404, detail="No traffic data found for this location.")
+                
+            current_speed = flow_data.get("currentSpeed", 0.0)
+            free_flow = flow_data.get("freeFlowSpeed", 1.0) # avoid division by zero
+            
+            # Calculate Congestion Ratio (0.0 to 1.0+)
+            ratio = max(0.0, (free_flow - current_speed) / free_flow)
+            
+            # Determine Level
+            level = "FREE_FLOW"
+            if flow_data.get("roadClosure"):
+                level = "CLOSED"
+            elif ratio >= 0.65:
+                level = "SEVERE"
+            elif ratio >= 0.35:
+                level = "HEAVY"
+            elif ratio >= 0.15:
+                level = "MODERATE"
+                
+            return BaseResponse(
+                success=True,
+                data=TomTomFlowResponse(
+                    current_speed=current_speed,
+                    free_flow_speed=free_flow,
+                    current_travel_time=flow_data.get("currentTravelTime", 0),
+                    free_flow_travel_time=flow_data.get("freeFlowTravelTime", 0),
+                    confidence=flow_data.get("confidence", 0.0),
+                    road_closure=flow_data.get("roadClosure", False),
+                    congestion_ratio=ratio,
+                    congestion_level=level
+                )
+            )
+            
+        except httpx.HTTPStatusError as e:
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail=f"TomTom API Error: {e.response.text}"
+            )
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Error fetching traffic flow: {str(e)}"
+            )
+
+@router.post("/route", response_model=BaseResponse[RouteInfoResponse], openapi_extra={"is_public": True})
 async def compute_route(payload: RouteComputeRequest):
     """Computes route and traffic-aware travel time using Google Routes API."""
     if not settings.GOOGLE_MAPS_API_KEY:
@@ -60,11 +124,14 @@ async def compute_route(payload: RouteComputeRequest):
             duration_str = route.get("duration", "0s").replace("s", "")
             static_duration_str = route.get("staticDuration", "0s").replace("s", "")
             
-            return RouteInfoResponse(
-                distance_meters=route.get("distanceMeters", 0),
-                duration_seconds=int(static_duration_str),
-                traffic_duration_seconds=int(duration_str),
-                polyline=route.get("polyline", {}).get("encodedPolyline", "")
+            return BaseResponse(
+                success=True,
+                data=RouteInfoResponse(
+                    distance_meters=route.get("distanceMeters", 0),
+                    duration_seconds=int(static_duration_str),
+                    traffic_duration_seconds=int(duration_str),
+                    polyline=route.get("polyline", {}).get("encodedPolyline", "")
+                )
             )
             
         except httpx.HTTPStatusError as e:
