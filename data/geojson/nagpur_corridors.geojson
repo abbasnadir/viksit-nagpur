@@ -1,0 +1,67 @@
+{
+  "type": "FeatureCollection",
+  "name": "nagpur_traffic_corridors",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "CORRIDOR_WARDHA_RD",
+        "name": "Wardha Road Arterial (Sitabuldi - Airport)",
+        "type": "Arterial",
+        "length_km": 7.8,
+        "design_speed_kmh": 50,
+        "metro_line_overlap": true,
+        "junction_sequence": ["J_SITABULDI_VARIETY", "J_RAHATE_COLONY", "J_AJNI_SQUARE", "J_CHHATRAPATI_SQ"]
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [79.0831, 21.1466],
+          [79.0760, 21.1270],
+          [79.0790, 21.1180],
+          [79.0690, 21.1105]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "CORRIDOR_CA_ROAD",
+        "name": "Central Avenue (CA Road)",
+        "type": "Commercial Corridor",
+        "length_km": 5.2,
+        "design_speed_kmh": 40,
+        "metro_line_overlap": true,
+        "junction_sequence": ["J_SAMVIDHAN_RBI", "J_TEL_EXCHANGE"]
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [79.0864, 21.1525],
+          [79.1020, 21.1510],
+          [79.1170, 21.1490]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "CORRIDOR_WHC_ROAD",
+        "name": "West High Court (WHC) Road",
+        "type": "Urban Arterial",
+        "length_km": 4.5,
+        "design_speed_kmh": 45,
+        "metro_line_overlap": false,
+        "junction_sequence": ["J_LAW_COLLEGE", "J_SHANKAR_NAGAR"]
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [79.0620, 21.1528],
+          [79.0625, 21.1396],
+          [79.0650, 21.1250]
+        ]
+      }
+    }
+  ]
+}
