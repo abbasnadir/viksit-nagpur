@@ -1,20 +1,22 @@
 """Core configuration and environment settings."""
 
-import os
 from typing import List
 from pydantic_settings import BaseSettings
 
-
 class Settings(BaseSettings):
+    # Core API Settings
     PROJECT_NAME: str = "Nagpur Traffic AI"
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
     ENVIRONMENT: str = "development"
     DEBUG: bool = True
 
-    # Coordinates: Nagpur Zero Mile Marker
-    NAGPUR_CENTER_LAT: float = 21.1458
-    NAGPUR_CENTER_LNG: float = 79.0882
+    # Security
+    SECRET_KEY: str = "your_super_secret_jwt_key_here_change_in_production"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
+
+    # Database
+    DATABASE_URL: str = "postgresql://user:password@ep-cool-darkness-123456.us-east-2.aws.neon.tech/dbname?sslmode=require"
 
     # CORS
     CORS_ORIGINS: List[str] = [
@@ -24,18 +26,9 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000"
     ]
 
-    # Paths
-    DATA_GEOJSON_DIR: str = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "../../../data/geojson")
-    )
-    MODEL_PATH: str = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "../../../ml/models/traffic_predictor_latest.pkl")
-    )
-
     class Config:
         case_sensitive = True
         env_file = ".env"
         extra = "allow"
-
 
 settings = Settings()

@@ -1,0 +1,92 @@
+openapi: 3.0.3
+info:
+  title: Nagpur Traffic AI Backend API
+  description: API routes documented exclusively for the frontend integration. Do NOT use undocumented routes.
+  version: 1.0.0
+paths:
+  /api/v1/risk/heatmap:
+    get:
+      summary: Get geographical heatmap data for traffic risk.
+      tags:
+        - Risk
+      responses:
+        '200':
+          description: Standardized heatmap data
+  /api/v1/risk/rankings:
+    get:
+      summary: Get dynamically updated ranking of locations based on risk score.
+      tags:
+        - Risk
+      responses:
+        '200':
+          description: Location risk rankings
+  /api/v1/risk/{location_id}:
+    get:
+      summary: Get specific risk score and features for a location.
+      tags:
+        - Risk
+      parameters:
+        - name: location_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Risk details for a location
+  /api/v1/incidents/report:
+    post:
+      summary: Public API for reporting incidents.
+      tags:
+        - Incidents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - incident_type
+                - location
+                - description
+              properties:
+                incident_type:
+                  type: string
+                  minLength: 2
+                  maxLength: 50
+                location:
+                  type: string
+                  minLength: 5
+                  maxLength: 150
+                description:
+                  type: string
+                  minLength: 10
+                  maxLength: 500
+                photo_url:
+                  type: string
+                  format: uri
+      responses:
+        '200':
+          description: Incident successfully reported
+  /api/v1/deployments/approve:
+    post:
+      summary: Control-room operator approves an AI deployment.
+      tags:
+        - Deployments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - deployment_id
+                - officer_id
+              properties:
+                deployment_id:
+                  type: string
+                officer_id:
+                  type: string
+      responses:
+        '200':
+          description: Deployment approved
