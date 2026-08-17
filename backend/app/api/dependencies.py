@@ -4,8 +4,8 @@ from pydantic import BaseModel
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
-from app.config import settings
-from app.security import verify_token
+from app.core.config import settings
+from app.core.security import verify_token
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=settings.AUTH_URL if settings.AUTH_URL else "/api/v1/auth/login")
 limiter = Limiter(key_func=get_remote_address)

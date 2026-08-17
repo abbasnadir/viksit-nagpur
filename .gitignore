@@ -69,3 +69,4 @@ Thumbs.db
 *.sqlite
 *.db
 .agent
+pnpm-lock.yaml

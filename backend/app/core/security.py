@@ -1,7 +1,7 @@
 import json
 import urllib.request
 from jose import jwt
-from app.config import settings
+from app.core.config import settings
 from typing import Dict, Any
 
 _jwks = None

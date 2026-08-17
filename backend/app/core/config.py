@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     JWKS_URL: str = ""
     AUTH_URL: str = ""
     DATABASE_URL: str = ""
+    GOOGLE_MAPS_API_KEY: str = ""
 
     CORS_ORIGINS: List[str] = [
         "http://localhost:5173",

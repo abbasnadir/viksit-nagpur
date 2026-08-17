@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Nagpur Traffic AI Backend API
-  description: Production-grade API routes. Unimplemented routes removed.
+  description: Production-grade API routes.
   version: 1.0.0
 paths:
   /health:
@@ -12,6 +12,52 @@ paths:
       responses:
         '200':
           description: OK
+  /api/v1/traffic/route:
+    post:
+      summary: Computes route and traffic-aware travel time using Google Routes API. (Opted-out of Authorization)
+      tags:
+        - Traffic
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - origin_lat
+                - origin_lng
+                - dest_lat
+                - dest_lng
+              properties:
+                origin_lat:
+                  type: number
+                origin_lng:
+                  type: number
+                dest_lat:
+                  type: number
+                dest_lng:
+                  type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      distance_meters:
+                        type: integer
+                      duration_seconds:
+                        type: integer
+                      traffic_duration_seconds:
+                        type: integer
+                      polyline:
+                        type: string
 
 components:
   securitySchemes:

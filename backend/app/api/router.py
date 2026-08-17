@@ -37,4 +37,6 @@ def get_base_router(*args, **kwargs) -> APIRouter:
 
 api_router = APIRouter()
 
-# Unimplemented routes have been removed. Ready for new implementations.
+from app.api.endpoints import traffic
+api_router.include_router(traffic.router)
+
