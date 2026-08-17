@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from app.api.v1.base_router import get_base_router
 from app.api.v1.endpoints import (
     risk,
     traffic,
@@ -9,7 +9,7 @@ from app.api.v1.endpoints import (
     redeployment
 )
 
-api_router = APIRouter()
+api_router = get_base_router()
 
 api_router.include_router(risk.router)
 api_router.include_router(traffic.router)

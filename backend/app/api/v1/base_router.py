@@ -1,7 +1,9 @@
+import json
 from typing import Any, Callable, Type
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, Response
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute
+from fastapi.encoders import jsonable_encoder
 
 from app.schemas.base import BaseResponse, ErrorResponse
 
@@ -9,24 +11,33 @@ class StandardizedRoute(APIRoute):
     def get_route_handler(self) -> Callable:
         original_route_handler = super().get_route_handler()
 
-        async def custom_route_handler(request: Request) -> Any:
+        async def custom_route_handler(request: Request) -> Response:
             try:
                 # Call original handler
                 response = await original_route_handler(request)
                 
-                # If it's already a standard response or direct Response object, return it
+                # If it is a Response with body, decode and standardize
+                if isinstance(response, Response) and hasattr(response, "body"):
+                    try:
+                        body_data = json.loads(response.body.decode("utf-8"))
+                        # If already wrapped, return as is
+                        if isinstance(body_data, dict) and "success" in body_data:
+                            return response
+                        wrapped = BaseResponse(success=True, data=body_data)
+                        return JSONResponse(
+                            status_code=response.status_code,
+                            content=jsonable_encoder(wrapped)
+                        )
+                    except Exception:
+                        return response
+
                 if isinstance(response, BaseResponse):
-                    return response
-                if isinstance(response, JSONResponse):
-                    return response
+                    return JSONResponse(content=jsonable_encoder(response))
                 
-                # Wrap the response
-                return BaseResponse(success=True, data=response)
+                wrapped = BaseResponse(success=True, data=response)
+                return JSONResponse(content=jsonable_encoder(wrapped))
                 
             except Exception as exc:
-                import traceback
-                traceback.print_exc()
-                # Generic fallback for unhandled exceptions. Handled exceptions should be raised as HTTPException
                 raise exc
 
         return custom_route_handler

@@ -33,6 +33,17 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # Mount REST API
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
+from app.db.init_db import init_database
+
+@app.on_event("startup")
+async def on_startup():
+    """Initialize database tables and seed sample Nagpur data if needed."""
+    try:
+        await init_database()
+    except Exception as e:
+        import logging
+        logging.getLogger("uvicorn.error").error(f"Error during startup DB initialization: {e}")
+
 @app.get("/health", tags=["Health"])
 async def health_check():
     """Health check endpoint for container probes."""
