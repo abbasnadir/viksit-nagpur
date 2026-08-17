@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { AlertTriangle, Clock } from 'lucide-react';
+import { AlertTriangle, Clock, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { useApp } from '../store/appStore';
-import { SeverityBadge, StatusBadge, Badge } from '../components/common/Badge';
+import { SeverityBadge, StatusBadge } from '../components/common/Badge';
 import type { IncidentStatus } from '../types';
 
 export default function IncidentsPage() {
   const { state } = useApp();
   const [filter, setFilter] = useState<'All' | IncidentStatus>('All');
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const filtered = state.incidents.filter(i =>
     filter === 'All' ? true : i.status === filter
@@ -16,6 +17,18 @@ export default function IncidentsPage() {
   const respondingCount = state.incidents.filter(i => i.status === 'Responding').length;
   const monitoringCount = state.incidents.filter(i => i.status === 'Monitoring').length;
   const resolvedCount = state.incidents.filter(i => i.status === 'Resolved').length;
+
+  const toggleExpand = (id: string) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
 
   const formatTime = (iso: string) => {
     const d = new Date(iso);
@@ -34,7 +47,7 @@ export default function IncidentsPage() {
           Incident Management
         </h2>
         <p className="text-xs text-slate-400 mt-0.5">
-          Active and recent incidents · {state.incidents.length} total records
+          Active and recent incidents · {state.incidents.length} total records · Click any description to view full details
         </p>
 
         {/* Filter tabs */}
@@ -68,15 +81,15 @@ export default function IncidentsPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Type</th>
-                <th>Location</th>
-                <th>Severity</th>
-                <th>Status</th>
-                <th>Description</th>
-                <th>Reported</th>
-                <th>Officer</th>
-                <th>Est. Clearance</th>
+                <th style={{ width: '85px' }}>ID</th>
+                <th style={{ width: '130px' }}>Type</th>
+                <th style={{ width: '170px' }}>Location</th>
+                <th style={{ width: '90px' }}>Severity</th>
+                <th style={{ width: '110px' }}>Status</th>
+                <th>Description (Click to expand)</th>
+                <th style={{ width: '100px' }}>Reported</th>
+                <th style={{ width: '110px' }}>Officer</th>
+                <th style={{ width: '110px' }}>Est. Clearance</th>
               </tr>
             </thead>
             <tbody>
@@ -87,54 +100,101 @@ export default function IncidentsPage() {
                   </td>
                 </tr>
               )}
-              {filtered.map(inc => (
-                <tr
-                  key={inc.id}
-                  className={
-                    inc.status === 'Active' ? 'bg-red-50' :
-                    inc.status === 'Responding' ? 'bg-amber-50' :
-                    ''
-                  }
-                >
-                  <td className="font-mono text-xs text-slate-400">{inc.id}</td>
-                  <td>
-                    <div className="flex items-center gap-1">
-                      <AlertTriangle
-                        size={10}
-                        className={
-                          inc.severity === 'Critical' || inc.severity === 'Severe' ? 'text-red-600' :
-                          inc.severity === 'Moderate' ? 'text-amber-600' : 'text-slate-400'
-                        }
-                      />
-                      <span className="font-semibold text-xs">{inc.type}</span>
-                    </div>
-                  </td>
-                  <td className="text-xs text-slate-700 font-medium">{inc.locationName}</td>
-                  <td><SeverityBadge severity={inc.severity} /></td>
-                  <td><StatusBadge status={inc.status} /></td>
-                  <td className="text-xs text-slate-600 max-w-56 truncate-2">{inc.description}</td>
-                  <td>
-                    <div className="flex items-center gap-1 text-xs text-slate-500">
-                      <Clock size={10} />
-                      {formatTime(inc.reportedAt)}
-                    </div>
-                  </td>
-                  <td className="font-mono text-xs">
-                    {inc.officerAssigned ? (
-                      <span className="badge badge-navy">{inc.officerAssigned}</span>
-                    ) : (
-                      <span className="text-red-600 font-semibold text-xs">Unassigned</span>
-                    )}
-                  </td>
-                  <td className="text-xs">
-                    {inc.estimatedClearanceMin ? (
-                      <span className="font-mono text-slate-600">{inc.estimatedClearanceMin} min</span>
-                    ) : (
-                      <span className="badge badge-green">Cleared</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
+              {filtered.map(inc => {
+                const isExpanded = expandedIds.has(inc.id);
+                const shortDesc = inc.shortDescription || inc.description.split('.')[0] || inc.description;
+
+                return (
+                  <tr
+                    key={inc.id}
+                    className={
+                      inc.status === 'Active'
+                        ? 'bg-red-50/70 hover:bg-red-50'
+                        : inc.status === 'Responding'
+                        ? 'bg-amber-50/70 hover:bg-amber-50'
+                        : 'hover:bg-slate-50'
+                    }
+                  >
+                    <td className="font-mono text-xs text-slate-400 font-semibold">{inc.id}</td>
+                    <td>
+                      <div className="flex items-center gap-1.5">
+                        <AlertTriangle
+                          size={11}
+                          className={
+                            inc.severity === 'Critical' || inc.severity === 'Severe'
+                              ? 'text-red-600'
+                              : inc.severity === 'Moderate'
+                              ? 'text-amber-600'
+                              : 'text-slate-400'
+                          }
+                        />
+                        <span className="font-semibold text-xs text-slate-800">{inc.type}</span>
+                      </div>
+                    </td>
+                    <td className="text-xs text-slate-800 font-medium">{inc.locationName}</td>
+                    <td>
+                      <SeverityBadge severity={inc.severity} />
+                    </td>
+                    <td>
+                      <StatusBadge status={inc.status} />
+                    </td>
+                    {/* Interactive Concise / Expanded Description */}
+                    <td className="max-w-md">
+                      <button
+                        type="button"
+                        onClick={() => toggleExpand(inc.id)}
+                        className="text-left w-full group focus:outline-none"
+                      >
+                        <div className="flex items-center gap-1.5 text-xs text-slate-800 font-medium group-hover:text-navy-900 transition-colors">
+                          <span className="truncate group-hover:underline underline-offset-2">
+                            {shortDesc}
+                          </span>
+                          <span className="flex-shrink-0 text-slate-400 group-hover:text-navy-700 bg-slate-100 group-hover:bg-slate-200 rounded p-0.5 transition-colors">
+                            {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                          </span>
+                        </div>
+                      </button>
+
+                      {/* Full Expanded Description Drawer */}
+                      {isExpanded && (
+                        <div className="mt-2 p-2.5 bg-white border border-slate-200 rounded shadow-xs text-xs text-slate-700 space-y-1 animate-fadeIn">
+                          <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 uppercase tracking-wider pb-1 border-b border-slate-100">
+                            <span className="flex items-center gap-1">
+                              <Info size={11} className="text-navy-700" />
+                              Full Incident Report
+                            </span>
+                          </div>
+                          <p className="pt-1 text-slate-700 leading-relaxed font-normal">
+                            {inc.description}
+                          </p>
+                        </div>
+                      )}
+                    </td>
+                    <td>
+                      <div className="flex items-center gap-1 text-xs text-slate-500">
+                        <Clock size={10} />
+                        {formatTime(inc.reportedAt)}
+                      </div>
+                    </td>
+                    <td className="font-mono text-xs">
+                      {inc.officerAssigned ? (
+                        <span className="badge badge-navy">{inc.officerAssigned}</span>
+                      ) : (
+                        <span className="text-red-600 font-semibold text-xs">Unassigned</span>
+                      )}
+                    </td>
+                    <td className="text-xs">
+                      {inc.estimatedClearanceMin ? (
+                        <span className="font-mono text-slate-600 font-medium">
+                          {inc.estimatedClearanceMin} min
+                        </span>
+                      ) : (
+                        <span className="badge badge-green">Cleared</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

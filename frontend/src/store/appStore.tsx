@@ -28,6 +28,7 @@ const initialSimIncident: Incident = {
   locationId: 'LOC_CHHATRAPATI',
   locationName: 'Chhatrapati Square',
   severity: 'Critical',
+  shortDescription: '[SIM] 2-Lane Blockage Crash',
   description: '[SIMULATED] Multi-vehicle accident at Chhatrapati Square. Two lanes blocked. Ambulance requested.',
   reportedAt: new Date().toISOString(),
   status: 'Active',
