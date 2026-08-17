@@ -53,10 +53,10 @@ export default function OperatorProfileModal({ isOpen, onClose }: Props) {
           </div>
 
           <h2 className="text-base font-bold text-white leading-tight">
-            Nagpur Traffic Police
+            N-TIR · Nagpur Traffic Police
           </h2>
           <p className="text-xs text-blue-200 mt-0.5 font-medium">
-            ITMS Control Room Operator Console
+            Nagpur Traffic Intelligence & Response System · Console
           </p>
         </div>
 

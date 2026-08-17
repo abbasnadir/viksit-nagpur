@@ -61,10 +61,10 @@ export default function LoginPage() {
             </div>
           </div>
           <h1 className="text-xl font-bold text-white leading-tight">
-            Viksit Nagpur
+            N-TIR
           </h1>
           <h2 className="text-sm text-blue-200 mt-1 leading-tight">
-            Intelligent Traffic Management System
+            Nagpur Traffic Intelligence & Response System
           </h2>
           <p className="text-xs text-slate-400 mt-2">
             Nagpur Traffic Police · Control Room Portal
@@ -150,17 +150,10 @@ export default function LoginPage() {
           </form>
         </div>
 
-        {/* Demo hint */}
-        <div className="mt-4 px-3 py-2 bg-amber-900/30 border border-amber-700/30 rounded text-center">
-          <p className="text-xs text-amber-300">
-            <strong>Demo:</strong> Enter any ID (≥3 chars) and password (≥4 chars) to proceed.
-          </p>
-        </div>
-
         {/* Footer */}
         <div className="mt-6 text-center text-xs text-slate-500 space-y-1">
-          <p>Powered by MahaIT · Smart Cities Mission, Government of India</p>
-          <p>© 2025 Nagpur Traffic Police. All rights reserved.</p>
+          <p>Smart Cities Mission · Government of India</p>
+          <p>© 2026 Nagpur Traffic Police. All rights reserved.</p>
         </div>
       </div>
     </div>

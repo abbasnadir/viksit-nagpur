@@ -32,8 +32,8 @@ export default function Header() {
               <Shield size={16} className="text-navy-900" style={{ color: '#0d1530' }} />
             </div>
             <div>
-              <div className="text-sm font-bold leading-tight tracking-wide">VIKSIT NAGPUR</div>
-              <div className="text-xs text-navy-300 leading-tight">Intelligent Traffic Management System</div>
+              <div className="text-sm font-bold leading-tight tracking-wide">N-TIR</div>
+              <div className="text-xs text-navy-300 leading-tight">Nagpur Traffic Intelligence & Response System</div>
             </div>
           </div>
 

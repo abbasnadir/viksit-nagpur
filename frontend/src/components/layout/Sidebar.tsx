@@ -87,11 +87,14 @@ export default function Sidebar() {
 
       {/* System info footer */}
       <div className="border-t border-slate-200 px-3 py-3">
-        <p className="text-xs text-slate-400 font-mono leading-relaxed">
-          v2.4.1 · NTP-ITMS
+        <p className="text-xs font-bold text-slate-700 leading-tight">
+          N-TIR
         </p>
-        <p className="text-xs text-slate-400">
-          MahaIT · Smart City Mission
+        <p className="text-[11px] text-slate-500 leading-tight mt-0.5">
+          Nagpur Traffic Intelligence & Response System
+        </p>
+        <p className="text-[10px] text-slate-400 font-mono mt-1">
+          v2.4.1 · MahaIT · Smart City Mission
         </p>
       </div>
     </aside>
